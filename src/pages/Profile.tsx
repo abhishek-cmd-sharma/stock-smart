@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   User, Phone, Mail, MapPin, Home, Settings, ShieldCheck, Bell,
-  Camera, Save, Loader2, Plus, X, AlertCircle, CheckCircle2, Eye, EyeOff, Lock
+  Camera, Save, Loader2, Plus, X, AlertCircle, CheckCircle2, Eye, EyeOff, Lock, LocateFixed
 } from "lucide-react";
 import { reauthenticateWithCredential, updatePassword, EmailAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase";
@@ -83,6 +83,8 @@ export default function Profile() {
   const [category, setCategory] = useState("Grocery Store");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
   // Custom fields
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
@@ -225,6 +227,8 @@ export default function Profile() {
       setProfilePictureUrl(profile.profile_picture_url ?? null);
       setDateOfBirth(profile.date_of_birth ?? "");
       setGender(profile.gender ?? "");
+      setLatitude(profile.latitude?.toString() ?? "");
+      setLongitude(profile.longitude?.toString() ?? "");
       // Set email from profile or from user login
       const profileEmail = (profile as any).email;
       if (profileEmail) {
@@ -364,6 +368,9 @@ export default function Profile() {
         gender: gender || null,
       };
 
+      if (latitude) profileData.latitude = parseFloat(latitude);
+      if (longitude) profileData.longitude = parseFloat(longitude);
+
       await upsert.mutateAsync(profileData);
 
       // Clear unsaved changes flag
@@ -420,6 +427,9 @@ export default function Profile() {
         gender: gender || null,
       };
 
+      if (latitude) profileData.latitude = parseFloat(latitude);
+      if (longitude) profileData.longitude = parseFloat(longitude);
+
       await upsert.mutateAsync(profileData);
 
       setHasUnsavedChanges(false);
@@ -440,6 +450,27 @@ export default function Profile() {
         icon: <AlertCircle className="h-4 w-4" />,
       });
     }
+  };
+
+  // Get current location using HTML5 Geolocation
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    
+    toast.info("Retrieving your location...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude.toString());
+        setLongitude(position.coords.longitude.toString());
+        toast.success("Location retrieved successfully!");
+      },
+      (error) => {
+        toast.error(`Failed to get location: ${error.message}`);
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   // Calculate inventory stats
@@ -831,6 +862,47 @@ export default function Profile() {
                     />
                     {validationErrors.address && (
                       <p className="text-xs text-destructive mt-1">{validationErrors.address}</p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-sm font-medium flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Shop Location (for Map)
+                      </Label>
+                      <Button type="button" variant="outline" size="sm" onClick={handleGetLocation} className="gap-2">
+                        <LocateFixed className="h-4 w-4" />
+                        Get My Location
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Enter coordinates to show your shop on the map, or click "Get My Location" to automatically detect your coordinates.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label htmlFor="latitude" className="text-xs">Latitude</Label>
+                        <Input
+                          id="latitude"
+                          value={latitude}
+                          onChange={(e) => setLatitude(e.target.value)}
+                          placeholder="e.g. 28.6139"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="longitude" className="text-xs">Longitude</Label>
+                        <Input
+                          id="longitude"
+                          value={longitude}
+                          onChange={(e) => setLongitude(e.target.value)}
+                          placeholder="e.g. 77.2090"
+                        />
+                      </div>
+                    </div>
+                    {latitude && longitude && (
+                      <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> Location set: {latitude}, {longitude}
+                      </p>
                     )}
                   </div>
 

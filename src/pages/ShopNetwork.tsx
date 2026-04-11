@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Store, MapPin, Phone, Search, Package, Users, Filter, Send, Loader2 } from "lucide-react";
+import { Store, MapPin, Phone, Search, Package, Users, Filter, Send, Loader2, Map, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAllShopkeepers, useProducts, useProfile, useShopProducts, useCreateStockPurchaseRequest, useMyStockRequests, useIncomingStockRequests, useUpdateStockRequest } from "@/hooks/useData";
@@ -14,6 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import LeafletMap from "@/components/ShopMap";
+import GoogleMaps from "@/components/GoogleShopMap";
+import { getGoogleMapsApiKey } from "@/pages/MapSettings";
 
 export default function ShopNetwork() {
   const { data: shopkeepers = [], isLoading } = useAllShopkeepers();
@@ -22,6 +25,8 @@ export default function ShopNetwork() {
   const { data: profile } = useProfile();
   const [search, setSearch] = useState("");
   const [showMyAreaOnly, setShowMyAreaOnly] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [mapProvider, setMapProvider] = useState<'leaflet' | 'google'>(getGoogleMapsApiKey() ? 'google' : 'leaflet');
   const [selectedShop, setSelectedShop] = useState<any>(null);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [showRequestsTab, setShowRequestsTab] = useState(false);
@@ -153,7 +158,112 @@ export default function ShopNetwork() {
           <Send className="h-4 w-4" />
           My Requests
         </Button>
+        <Button
+          variant={showMap ? "default" : "outline"}
+          onClick={() => setShowMap(!showMap)}
+          className="gap-2"
+        >
+          <Map className="h-4 w-4" />
+          {showMap ? "Hide Map" : "Show Map"}
+        </Button>
       </div>
+
+      {/* Map Section */}
+      {showMap && filtered.some((s: any) => s.latitude && s.longitude) && (
+        <div className="mb-6">
+          {/* Map Provider Toggle */}
+          <div className="flex items-center justify-end gap-2 mb-3">
+            <span className="text-sm text-muted-foreground">Map:</span>
+            <div className="flex gap-1">
+              <Button
+                variant={mapProvider === 'leaflet' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setMapProvider('leaflet')}
+                className="gap-1"
+              >
+                <Map className="h-3 w-3" />
+                OpenStreetMap
+              </Button>
+              <Button
+                variant={mapProvider === 'google' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setMapProvider('google')}
+                className="gap-1"
+                disabled={!getGoogleMapsApiKey()}
+              >
+                <Globe className="h-3 w-3" />
+                Google
+              </Button>
+            </div>
+          </div>
+
+          {mapProvider === 'leaflet' ? (
+            <LeafletMap
+              shops={filtered
+                .filter((s: any) => s.latitude && s.longitude)
+                .map((s: any) => ({
+                  id: s.id,
+                  name: s.shop_name || "Unnamed Shop",
+                  owner: s.owner_name,
+                  address: s.address,
+                  phone: s.phone,
+                  latitude: s.latitude,
+                  longitude: s.longitude,
+                }))}
+              height="400px"
+              onShopClick={(shop) => {
+                const originalShop = filtered.find((s: any) => s.id === shop.id);
+                if (originalShop) {
+                  setSelectedShop(originalShop);
+                  setShowRequestDialog(true);
+                }
+              }}
+              showUserLocation={!!profile?.latitude && !!profile?.longitude}
+              userLatitude={profile?.latitude}
+              userLongitude={profile?.longitude}
+            />
+          ) : (
+            <GoogleMaps
+              shops={filtered
+                .filter((s: any) => s.latitude && s.longitude)
+                .map((s: any) => ({
+                  id: s.id,
+                  name: s.shop_name || "Unnamed Shop",
+                  owner: s.owner_name,
+                  address: s.address,
+                  phone: s.phone,
+                  latitude: s.latitude,
+                  longitude: s.longitude,
+                }))}
+              apiKey={getGoogleMapsApiKey()}
+              height="400px"
+              onShopClick={(shop) => {
+                const originalShop = filtered.find((s: any) => s.id === shop.id);
+                if (originalShop) {
+                  setSelectedShop(originalShop);
+                  setShowRequestDialog(true);
+                }
+              }}
+              showUserLocation={!!profile?.latitude && !!profile?.longitude}
+              userLatitude={profile?.latitude}
+              userLongitude={profile?.longitude}
+            />
+          )}
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Click on a marker to view shop details or send a request
+          </p>
+        </div>
+      )}
+
+      {showMap && !filtered.some((s: any) => s.latitude && s.longitude) && (
+        <div className="bg-muted/30 rounded-lg p-8 mb-6 text-center">
+          <MapPin className="h-10 w-10 mx-auto mb-3 text-muted-foreground opacity-50" />
+          <p className="text-muted-foreground">No shops with coordinates found</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Shopkeepers can set their location in their profile to appear on the map
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">

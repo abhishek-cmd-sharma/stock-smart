@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { useMarketplaceListings, useProfile, useAllShopkeepers } from "@/hooks/useData";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Phone, AlertCircle, Loader2, Store, MapPin, Package, Search, Calendar, Tag, Box, Percent } from "lucide-react";
+import { Phone, AlertCircle, Loader2, Store, MapPin, Package, Search, Calendar, Tag, Box, Percent, Map, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import LeafletMap from "@/components/ShopMap";
+import GoogleMaps from "@/components/GoogleShopMap";
+import { getGoogleMapsApiKey } from "@/pages/MapSettings";
 
 export default function Customer() {
   const { data: listings = [], isLoading: listingsLoading, error: listingsError } = useMarketplaceListings();
@@ -22,6 +25,8 @@ export default function Customer() {
   const [activeTab, setActiveTab] = useState("products");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [debugInfo, setDebugInfo] = useState("");
+  const [showMap, setShowMap] = useState(true);
+  const [mapProvider, setMapProvider] = useState<'leaflet' | 'google'>(getGoogleMapsApiKey() ? 'google' : 'leaflet');
 
   // Debug: show error details
   React.useEffect(() => {
@@ -254,10 +259,111 @@ export default function Customer() {
             </div>
           </div>
 
-          <div className="text-sm text-muted-foreground mb-4">
-            Showing <strong>{searchedShops.length}</strong> shops
-            {pincode && <span className="ml-2">(in your area)</span>}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm text-muted-foreground">
+              Showing <strong>{searchedShops.length}</strong> shops
+              {pincode && <span className="ml-2">(in your area)</span>}
+            </div>
+            <Button
+              variant={showMap ? "default" : "outline"}
+              onClick={() => setShowMap(!showMap)}
+              className="gap-2 h-8 text-xs"
+            >
+              <Map className="h-3.5 w-3.5" />
+              {showMap ? "Hide Map" : "Show Map"}
+            </Button>
           </div>
+
+          {showMap && searchedShops.some((s: any) => s.latitude && s.longitude) && (
+            <div className="mb-6">
+              {/* Map Provider Toggle */}
+              <div className="flex items-center justify-end gap-2 mb-3">
+                <span className="text-sm text-muted-foreground">Map:</span>
+                <div className="flex gap-1">
+                  <Button
+                    variant={mapProvider === 'leaflet' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setMapProvider('leaflet')}
+                    className="gap-1 h-7 text-xs"
+                  >
+                    <Map className="h-3 w-3" />
+                    OpenStreetMap
+                  </Button>
+                  <Button
+                    variant={mapProvider === 'google' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setMapProvider('google')}
+                    className="gap-1 h-7 text-xs"
+                    disabled={!getGoogleMapsApiKey()}
+                  >
+                    <Globe className="h-3 w-3" />
+                    Google
+                  </Button>
+                </div>
+              </div>
+
+              {mapProvider === 'leaflet' ? (
+                <LeafletMap
+                  shops={searchedShops
+                    .filter((s: any) => s.latitude && s.longitude)
+                    .map((s: any) => ({
+                      id: s.id,
+                      name: s.shop_name || "Unnamed Shop",
+                      owner: s.owner_name,
+                      address: s.address,
+                      phone: s.phone,
+                      latitude: s.latitude,
+                      longitude: s.longitude,
+                    }))}
+                  height="400px"
+                  onShopClick={(shop) => {
+                    const originalShop = searchedShops.find((s: any) => s.id === shop.id);
+                    if (originalShop) {
+                       navigate(`/shop/${originalShop.user_id}`);
+                    }
+                  }}
+                  showUserLocation={!!profile?.latitude && !!profile?.longitude}
+                  userLatitude={profile?.latitude}
+                  userLongitude={profile?.longitude}
+                />
+              ) : (
+                <GoogleMaps
+                  shops={searchedShops
+                    .filter((s: any) => s.latitude && s.longitude)
+                    .map((s: any) => ({
+                      id: s.id,
+                      name: s.shop_name || "Unnamed Shop",
+                      owner: s.owner_name,
+                      address: s.address,
+                      phone: s.phone,
+                      latitude: s.latitude,
+                      longitude: s.longitude,
+                    }))}
+                  apiKey={getGoogleMapsApiKey()}
+                  height="400px"
+                  onShopClick={(shop) => {
+                    const originalShop = searchedShops.find((s: any) => s.id === shop.id);
+                    if (originalShop) {
+                       navigate(`/shop/${originalShop.user_id}`);
+                    }
+                  }}
+                  showUserLocation={!!profile?.latitude && !!profile?.longitude}
+                  userLatitude={profile?.latitude}
+                  userLongitude={profile?.longitude}
+                />
+              )}
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Click on a marker to view shop details and products
+              </p>
+            </div>
+          )}
+
+          {showMap && !searchedShops.some((s: any) => s.latitude && s.longitude) && (
+            <div className="bg-muted/30 rounded-lg p-8 mb-6 text-center">
+              <MapPin className="h-10 w-10 mx-auto mb-3 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground">None of the shops currently have coordinates on the map.</p>
+            </div>
+          )}
 
           {!pincode && (
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mb-4 text-sm text-amber-200 flex items-center gap-2">

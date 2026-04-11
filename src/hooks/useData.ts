@@ -349,6 +349,8 @@ export function useUpsertProfile() {
       if (profile.gender !== undefined) payload.gender = profile.gender;
       if (profile.is_active !== undefined) payload.is_active = profile.is_active;
       if (profile.role !== undefined) payload.role = profile.role;
+      if (profile.latitude !== undefined) payload.latitude = profile.latitude;
+      if (profile.longitude !== undefined) payload.longitude = profile.longitude;
 
       // Auto-infer pincode from address when not explicitly provided
       if ((!payload.pincode || payload.pincode === null) && payload.address) {

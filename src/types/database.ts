@@ -43,6 +43,8 @@ export interface Profile {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export type ProfileInsert = Omit<Profile, "id" | "created_at" | "updated_at"> & {
@@ -84,6 +86,8 @@ export interface EnhancedProfileData {
   gender?: string | null;
   is_active?: boolean;
   role?: string | null;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Shop-to-Shop Stock Transfer Types
