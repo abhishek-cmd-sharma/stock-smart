@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if the document belongs to the requesting user
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function to get user profile
+    function getRole() {
+      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && getRole() == 'admin';
+    }
+
+    match /profiles/{profileId} {
+      // Users can read any profile (needed for marketplace/network)
+      allow read: if isAuthenticated();
+      // Users can create/update their own profile
+      allow create: if isAuthenticated() && isOwner(request.resource.data.user_id);
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+    }
+
+    match /products/{productId} {
+      // Products can be read by anyone (marketplace)
+      allow read: if isAuthenticated();
+      // Only owner or admin can write
+      allow create: if isAuthenticated() && isOwner(request.resource.data.user_id);
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+    }
+
+    match /sales/{saleId} {
+      // Sales data is private to the owner
+      allow read: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.user_id);
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+    }
+
+    match /surplus_listings/{listingId} {
+      // Public to authenticated users
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(request.resource.data.shop_user_id);
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.shop_user_id) || isAdmin());
+    }
+
+    match /transfer_requests/{requestId} {
+      // Only requester, supplier, or admin can read/write
+      allow read, update: if isAuthenticated() && (
+        isOwner(resource.data.requester_shop_user_id) || 
+        isOwner(resource.data.supplier_shop_user_id) || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && isOwner(request.resource.data.requester_shop_user_id);
+      allow delete: if isAuthenticated() && (isOwner(resource.data.requester_shop_user_id) || isAdmin());
+    }
+
+    match /stock_purchase_requests/{requestId} {
+      allow read, update: if isAuthenticated() && (
+        isOwner(resource.data.from_shop_user_id) || 
+        isOwner(resource.data.to_shop_user_id) || 
+        isAdmin()
+      );
+      allow create: if isAuthenticated() && isOwner(request.resource.data.from_shop_user_id);
+      allow delete: if isAuthenticated() && (isOwner(resource.data.from_shop_user_id) || isAdmin());
+    }
+
+    match /credit_entries/{entryId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.user_id);
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.user_id);
+      allow update, delete: if isAuthenticated() && (isOwner(resource.data.user_id) || isAdmin());
+    }
+
+    // Default deny for everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

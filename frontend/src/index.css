@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Flat Design Light Mode Palette */
+    --background: 210 40% 98%; /* #F8FAFC */
+    --foreground: 222.2 47.4% 11.2%; /* #0F172A */
+
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 221.2 83.2% 53.3%; /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    
+    --primary-hover: 224 76% 48%; /* #1D4ED8 */
+
+    --secondary: 238.7 83.5% 66.9%; /* #6366F1 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 214.3 31.8% 91.4%; 
+    --muted-foreground: 215.3 19.3% 46.7%; /* #64748B */
+
+    --accent: 173.4 80.4% 40%; /* #14B8A6 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%; /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 37.7 92.1% 50.2%; /* #F59E0B */
+    --warning-foreground: 0 0% 100%;
+
+    --success: 142.1 70.6% 45.3%; /* #22C55E */
+    --success-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%; /* #E5E7EB */
+    --input: 220 13% 91%;
+    --ring: 221.2 83.2% 53.3%; /* #2563EB */
+
+    --radius: 0.75rem; /* 12px base */
+  }
+
+  .dark {
+    /* Flat Design Dark Mode Palette */
+    --background: 222.2 47.4% 11.2%; /* #0F172A */
+    --foreground: 210 40% 98%; /* #F8FAFC */
+
+    --card: 221 39% 11%; /* #111827 */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 221 39% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 221.2 83.2% 53.3%; /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    
+    --primary-hover: 224 76% 48%; /* #1D4ED8 */
+
+    --secondary: 238.7 83.5% 66.9%; /* #6366F1 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 217.2 32.6% 17.5%; 
+    --muted-foreground: 215 20.2% 65.1%; /* #94A3B8 */
+
+    --accent: 173.4 80.4% 40%; /* #14B8A6 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%; /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 37.7 92.1% 50.2%; /* #F59E0B */
+    --warning-foreground: 222.2 47.4% 11.2%;
+
+    --success: 142.1 70.6% 45.3%; /* #22C55E */
+    --success-foreground: 0 0% 100%;
+
+    --border: 215 28% 17%; /* #1F2937 */
+    --input: 215 28% 17%;
+    --ring: 221.2 83.2% 53.3%; /* #2563EB */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    /* font is controlled via ThemeContext: we expose --body-font and data-font on html */
+    font-family: var(--body-font, 'DM Sans'), sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+/* Background overrides per font choice + theme
+   We use html[data-font="dm"] and html[data-font="space"] together with .dark
+   to change the --background variable so background color reacts to both font and theme.
+*/
+html[data-font="dm"] {
+  --background: 150 10% 97%;
+}
+html[data-font="dm"].dark {
+  --background: 160 30% 6%;
+}
+
+html[data-font="space"] {
+  /* slightly warmer background for Space Grotesk */
+  --background: 30 20% 98%;
+}
+html[data-font="space"].dark {
+  --background: 220 12% 8%;
+}
+
+@layer utilities {
+  .stat-card {
+    @apply rounded-xl border p-5 shadow-sm transition-all duration-200 hover:shadow-lg;
+    background: linear-gradient(135deg, hsl(var(--grad-1)) 0%, hsl(var(--grad-2)) 50%, hsl(var(--grad-3)) 100%);
+    color: white;
+    box-shadow: 0 8px 30px rgba(16,24,40,0.35);
+    backdrop-filter: blur(var(--glass-blur));
+  }
+  .page-header {
+    @apply mb-6;
+  }
+  .page-title {
+    @apply text-2xl font-bold tracking-tight;
+  }
+  .page-subtitle {
+    @apply text-muted-foreground mt-1;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  .glass {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .glow-on-hover:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 50px rgba(0, 140, 255, 0.15);
+  }
+
+  .count-up {
+    display: inline-block;
+    transform-origin: bottom left;
+  }
+}

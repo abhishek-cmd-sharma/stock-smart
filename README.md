@@ -8,6 +8,12 @@
 
 There are several ways of editing your application.
 
+## Project Structure
+
+This project is divided into two main folders for clarity:
+- **`frontend/`**: Contains the React/Vite application code.
+- **`backend/`**: Contains backend configuration (Firebase, Supabase, etc.).
+
 **Use Lovable**
 
 Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
@@ -29,7 +35,8 @@ git clone <YOUR_GIT_URL>
 # Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# Step 3: Navigate to the frontend directory and install dependencies.
+cd frontend
 npm i
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
