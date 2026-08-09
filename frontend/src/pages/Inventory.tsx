@@ -507,7 +507,7 @@ export default function Inventory() {
         }
 
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: { facingMode: 'environment' }, // Let device choose optimal resolution for autofocus
           audio: false
         });
         
@@ -515,15 +515,14 @@ export default function Inventory() {
         
         streamRef.current = stream;
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
           videoRef.current.setAttribute('playsinline', 'true');
           videoRef.current.setAttribute('autoplay', 'true');
-          try { await videoRef.current.play(); } catch(e) { console.warn('Video play error:', e); }
+          videoRef.current.setAttribute('muted', 'true'); // Required for iOS autoplay
         }
 
         setScanning(true);
 
-        // Import ZXing and create reader with all barcode formats
+        // Import ZXing and create reader with only standard retail barcode formats to massively speed up scanning
         const { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } = await import('@zxing/library');
         
         const hints = new Map();
@@ -533,22 +532,14 @@ export default function Inventory() {
           BarcodeFormat.UPC_A,
           BarcodeFormat.UPC_E,
           BarcodeFormat.CODE_128,
-          BarcodeFormat.CODE_39,
-          BarcodeFormat.CODE_93,
-          BarcodeFormat.ITF,
-          BarcodeFormat.QR_CODE,
-          BarcodeFormat.DATA_MATRIX,
-          BarcodeFormat.PDF_417,
-          BarcodeFormat.CODABAR,
-          BarcodeFormat.AZTEC,
+          BarcodeFormat.CODE_39
         ]);
-        hints.set(DecodeHintType.TRY_HARDER, true);
+        // Do NOT use TRY_HARDER as it drops the framerate on mobile devices to unusable levels
         
         const reader = new BrowserMultiFormatReader(hints);
         codeReaderRef.current = reader;
 
-        // Use decodeFromStream to decode from the already-acquired stream
-        // This avoids the conflict of decodeFromVideoDevice opening a second camera stream
+        // decodeFromStream automatically sets srcObject and plays the video
         reader.decodeFromStream(stream, videoRef.current, (result, err) => {
           if (!active) return;
           if (result) {
@@ -562,7 +553,6 @@ export default function Inventory() {
               }
             }
           }
-          // Ignore NotFoundException — it fires every frame when no barcode is visible
         });
       } catch (err: any) {
         if (!active) return;
