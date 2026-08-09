@@ -69,16 +69,20 @@ function AppRoutes() {
 
   // Guard component for root path to redirect customers to their dashboard
   function HomeGuard() {
+    const { user } = useAuth();
     const { data: profile, isLoading: profileLoading } = useProfile();
     if (profileLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
+    if (profile?.role === 'admin' || user?.email === 'admin@gmail.com') return <Navigate to="/admin" replace />;
     if (profile?.role === 'customer') return <Navigate to="/customer" replace />;
     return <Dashboard />;
   }
 
   // Auth page redirect — checks role to send customers to /customer
   function AuthRedirect() {
+    const { user } = useAuth();
     const { data: profile, isLoading: profileLoading } = useProfile();
     if (profileLoading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
+    if (profile?.role === 'admin' || user?.email === 'admin@gmail.com') return <Navigate to="/admin" replace />;
     if (profile?.role === 'customer') return <Navigate to="/customer" replace />;
     return <Navigate to="/" replace />;
   }
