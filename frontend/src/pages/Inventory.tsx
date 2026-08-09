@@ -452,6 +452,7 @@ export default function Inventory() {
           quantity: f.quantity || '1', // Default 1 unit
           expiry_date: f.expiry_date || expiryStr, // Default 6 months
           batch_details: batchParts.join(' | ') || f.batch_details,
+          image_url: imageUrl || f.image_url,
         }));
 
         toast.success(
