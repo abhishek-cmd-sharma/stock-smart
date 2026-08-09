@@ -83,6 +83,21 @@ function AppRoutes() {
     return <Navigate to="/" replace />;
   }
 
+  // Guard component for admin routes
+  function AdminGuard({ children }: { children: React.ReactNode }) {
+    const { data: profile, isLoading: profileLoading } = useProfile();
+    
+    if (profileLoading) {
+      return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Verifying admin access...</div>;
+    }
+    
+    if (!profile || profile.role !== 'admin') {
+      return <Navigate to="/" replace />;
+    }
+    
+    return <>{children}</>;
+  }
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
 
   return (
@@ -103,10 +118,10 @@ function AppRoutes() {
                     <Route path="/customer/profile" element={<CustomerProfileGuard />} />
                     <Route path="/inventory" element={<Inventory />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/admin" element={<AdminOverview />} />
-                    <Route path="/admin/users" element={<AdminUsers />} />
-                    <Route path="/admin/inventory" element={<AdminInventory />} />
-                    <Route path="/admin/utilities" element={<AdminUtilities />} />
+                    <Route path="/admin" element={<AdminGuard><AdminOverview /></AdminGuard>} />
+                    <Route path="/admin/users" element={<AdminGuard><AdminUsers /></AdminGuard>} />
+                    <Route path="/admin/inventory" element={<AdminGuard><AdminInventory /></AdminGuard>} />
+                    <Route path="/admin/utilities" element={<AdminGuard><AdminUtilities /></AdminGuard>} />
                     <Route path="/sales" element={<Sales />} />
                     <Route path="/credit-book" element={<CreditBook />} />
                     <Route path="/combo-offers" element={<ComboOffers />} />
