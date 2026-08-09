@@ -86,13 +86,25 @@ function AppRoutes() {
   // Guard component for admin routes
   function AdminGuard({ children }: { children: React.ReactNode }) {
     const { data: profile, isLoading: profileLoading } = useProfile();
+    const [isAuthenticated, setIsAuthenticated] = React.useState(() => {
+      return localStorage.getItem('admin_auth') === 'true';
+    });
     
     if (profileLoading) {
       return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Verifying admin access...</div>;
     }
     
-    if (!profile || profile.role !== 'admin') {
-      return <Navigate to="/" replace />;
+    // If they have the database role OR they successfully entered the hardcoded password
+    const hasAdminAccess = (profile && profile.role === 'admin') || isAuthenticated;
+
+    if (!hasAdminAccess) {
+      return (
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+          {React.createElement(React.lazy(() => import('./pages/admin/AdminLogin')), {
+            onLoginSuccess: () => setIsAuthenticated(true)
+          })}
+        </React.Suspense>
+      );
     }
     
     return <>{children}</>;
