@@ -211,11 +211,22 @@ app.post('/api/profile', verifyToken, async (req, res) => {
   try {
     const userId = (req as any).user.uid;
     const existing = await Profile.findOne({ user_id: userId });
-    if (existing) return res.status(400).json({ error: 'Profile already exists' });
     
-    const newProfile = await Profile.create({ ...req.body, user_id: userId });
-    res.status(201).json(newProfile);
-  } catch (error) { res.status(500).json({ error: 'Failed to create profile' }); }
+    if (existing) {
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        existing._id,
+        { ...req.body, updated_at: new Date() },
+        { new: true }
+      );
+      return res.status(200).json(updatedProfile);
+    } else {
+      const newProfile = await Profile.create({ ...req.body, user_id: userId });
+      return res.status(201).json(newProfile);
+    }
+  } catch (error) { 
+    console.error("POST /api/profile error:", error);
+    res.status(500).json({ error: 'Failed to create/update profile' }); 
+  }
 });
 
 app.put('/api/profile', verifyToken, async (req, res) => {
@@ -312,6 +323,6 @@ app.post('/api/db/batch', verifyToken, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Backend server running perfectly on port ${PORT}`);
+app.listen(PORT as number, "0.0.0.0", () => {
+  console.log(`Backend server running perfectly on port ${PORT} (0.0.0.0)`);
 });

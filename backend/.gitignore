@@ -1,2 +1,9 @@
+node_modules/
 .env
-node_modules*.json
+uploads/
+*.log
+smart-stock-dabf5-firebase-adminsdk-fbsvc-54defc9a1b.json
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
