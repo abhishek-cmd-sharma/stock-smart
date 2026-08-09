@@ -322,7 +322,7 @@ export default function Inventory() {
 
   // Cleanup camera stream
   function stopCamera() {
-    try { codeReaderRef.current?.reset?.(); } catch (e) {}
+    try { codeReaderRef.current?.reset?.(); } catch (e) { /* ignore */ }
     codeReaderRef.current = null;
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());

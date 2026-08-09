@@ -14,7 +14,7 @@ import type {
   Notification
 } from "@/types/database";
 
-const API_BASE_URL = 'http://localhost:3000/api';
+import { API_BASE_URL } from "@/config";
 
 function extractPincodeFromAddress(addr?: string) {
   if (!addr) return null;
@@ -327,6 +327,10 @@ export function useProfile() {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      if (res.status === 404) {
+        return null;
+      }
       
       if (!res.ok) {
         throw new Error('Failed to fetch profile from custom backend');

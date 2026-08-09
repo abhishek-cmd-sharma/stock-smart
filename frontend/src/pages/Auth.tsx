@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Package } from "lucide-react";
 import { toast } from "sonner";
 
-const API_BASE_URL = 'http://localhost:3000/api';
+import { API_BASE_URL } from "@/config";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
