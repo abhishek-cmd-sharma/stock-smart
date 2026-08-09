@@ -30,6 +30,8 @@ const buttonVariants = cva(
   },
 );
 
+import { motion, HTMLMotionProps } from "framer-motion";
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
@@ -38,9 +40,22 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
     const classes = cn(buttonVariants({ variant, size }), className);
-    return <Comp className={classes} ref={ref} {...props} />;
+    
+    if (asChild) {
+      return <Slot className={classes} ref={ref} {...props} />;
+    }
+    
+    return (
+      <motion.button 
+        className={classes} 
+        ref={ref} 
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        {...(props as any)} 
+      />
+    );
   },
 );
 Button.displayName = "Button";

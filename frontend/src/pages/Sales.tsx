@@ -142,7 +142,26 @@ export default function Sales() {
     });
   };
 
-  if (loadingSales || loadingProducts) return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading sales...</div>;
+  if (loadingSales || loadingProducts) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6 w-full">
+        <div className="flex justify-between items-start mb-6">
+          <div className="space-y-2">
+            <div className="h-10 w-48 bg-muted rounded-xl skeleton-shimmer"></div>
+            <div className="h-4 w-64 bg-muted rounded-md skeleton-shimmer"></div>
+          </div>
+          <div className="flex gap-2">
+            <div className="h-10 w-32 bg-muted rounded-xl skeleton-shimmer"></div>
+            <div className="h-10 w-32 bg-muted rounded-xl skeleton-shimmer"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-xl skeleton-shimmer"></div>)}
+        </div>
+        <div className="h-[400px] w-full bg-muted rounded-xl skeleton-shimmer"></div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -338,7 +357,13 @@ export default function Sales() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.4 }}
+        className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden"
+      >
         <div className="px-6 py-4 border-b border-border bg-muted/20">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />
@@ -395,7 +420,7 @@ export default function Sales() {
             </Table>
           )}
         </div>
-      </div>
+      </motion.div>
       
       <VoiceSaleModal 
         open={voiceModalOpen} 

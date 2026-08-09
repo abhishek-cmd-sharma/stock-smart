@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, Loader2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { parseVoiceCommand, ParsedVoiceCommand } from "@/lib/voiceParser";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface VoiceSaleModalProps {
   open: boolean;
@@ -217,12 +218,17 @@ export function VoiceSaleModal({ open, onOpenChange, inventory, onConfirmSale }:
           ) : (
             <div className="flex flex-col items-center space-y-6">
               <div className={`relative flex items-center justify-center h-32 w-32 rounded-full transition-all duration-300 ${isListening ? 'bg-primary/20 scale-110' : 'bg-muted'}`}>
-                {isListening && (
-                  <>
-                    <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping"></div>
-                    <div className="absolute inset-2 rounded-full border-4 border-primary/40 animate-pulse"></div>
-                  </>
-                )}
+                <AnimatePresence>
+                  {isListening && (
+                    <motion.div 
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                      exit={{ scale: 0.8, opacity: 0 }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                      className="absolute inset-0 rounded-full border-4 border-primary/50"
+                    />
+                  )}
+                </AnimatePresence>
                 <Button 
                   size="icon" 
                   className={`h-20 w-20 rounded-full shadow-lg z-10 transition-colors ${isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-primary/90'}`}

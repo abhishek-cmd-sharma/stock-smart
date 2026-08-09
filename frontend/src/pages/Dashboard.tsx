@@ -37,7 +37,18 @@ export default function Dashboard() {
   });
 
   if (loadingProducts || loadingSales) {
-    return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading dashboard...</div>;
+    return (
+      <div className="space-y-8 w-full">
+        <div className="h-16 w-64 bg-muted rounded-xl skeleton-shimmer"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-muted rounded-xl skeleton-shimmer"></div>)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-[400px] bg-muted rounded-xl skeleton-shimmer"></div>
+          <div className="h-[400px] bg-muted rounded-xl skeleton-shimmer"></div>
+        </div>
+      </div>
+    );
   }
 
   const container: Variants = {
@@ -51,8 +62,12 @@ export default function Dashboard() {
   };
 
   const item: Variants = {
-    hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
+    hidden: { y: 20, scale: 0.98, opacity: 0 },
+    show: { y: 0, scale: 1, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+  
+  const iconAnimation = {
+    hover: { scale: 1.15, rotate: 5, transition: { type: "spring", stiffness: 400, damping: 10 } }
   };
 
   return (
@@ -69,67 +84,75 @@ export default function Dashboard() {
 
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* Total Products Card */}
-        <motion.div variants={item} className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-250 border-b-4 border-b-primary">
+        <motion.div variants={item} whileHover={{ y: -3, scale: 1.01 }} className="bg-card border border-border rounded-xl shadow-sm dark:shadow-soft-dark p-6 flex flex-col justify-between transition-colors duration-250 border-b-4 border-b-primary group">
           <div className="flex items-start justify-between mb-4">
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Package className="h-6 w-6 text-primary" />
+              <motion.div variants={iconAnimation} className="inline-flex">
+                <Package className="h-6 w-6 text-primary group-hover:text-primary-hover transition-colors" />
+              </motion.div>
             </div>
           </div>
           <div>
             <p className="text-3xl font-bold font-display text-foreground count-up">
-              <CountUp end={totalProducts} duration={2} separator="," />
+              <CountUp end={totalProducts} duration={2} separator="," enableScrollSpy scrollSpyOnce />
             </p>
             <span className="text-sm text-muted-foreground font-medium mt-1 block">Total Products</span>
           </div>
         </motion.div>
 
         {/* Low Stock Alerts Card */}
-        <motion.div variants={item} className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-250 border-b-4 border-b-warning">
+        <motion.div variants={item} whileHover={{ y: -3, scale: 1.01 }} className="bg-card border border-border rounded-xl shadow-sm dark:shadow-soft-dark p-6 flex flex-col justify-between transition-colors duration-250 border-b-4 border-b-warning group">
           <div className="flex items-start justify-between mb-4">
             <div className="h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center">
-              <AlertTriangle className="h-6 w-6 text-warning" />
+              <motion.div variants={iconAnimation} className="inline-flex">
+                <AlertTriangle className="h-6 w-6 text-warning" />
+              </motion.div>
             </div>
           </div>
           <div>
             <p className="text-3xl font-bold font-display text-foreground count-up">
-              <CountUp end={lowStock} duration={2.5} />
+              <CountUp end={lowStock} duration={2.5} enableScrollSpy scrollSpyOnce />
             </p>
             <span className="text-sm text-muted-foreground font-medium mt-1 block">Low Stock Alerts</span>
           </div>
         </motion.div>
 
         {/* Expiring Soon Card */}
-        <motion.div variants={item} className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-250 border-b-4 border-b-destructive">
+        <motion.div variants={item} whileHover={{ y: -3, scale: 1.01 }} className="bg-card border border-border rounded-xl shadow-sm dark:shadow-soft-dark p-6 flex flex-col justify-between transition-colors duration-250 border-b-4 border-b-destructive group">
           <div className="flex items-start justify-between mb-4">
             <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
-              <Clock className="h-6 w-6 text-destructive" />
+              <motion.div variants={iconAnimation} className="inline-flex">
+                <Clock className="h-6 w-6 text-destructive" />
+              </motion.div>
             </div>
           </div>
           <div>
             <p className="text-3xl font-bold font-display text-foreground count-up">
-              <CountUp end={expiringSoon} duration={2.5} />
+              <CountUp end={expiringSoon} duration={2.5} enableScrollSpy scrollSpyOnce />
             </p>
             <span className="text-sm text-muted-foreground font-medium mt-1 block">Expiring Soon</span>
           </div>
         </motion.div>
 
         {/* Total Revenue Card */}
-        <motion.div variants={item} className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark p-6 flex flex-col justify-between hover:-translate-y-1 transition-all duration-250 border-b-4 border-b-success">
+        <motion.div variants={item} whileHover={{ y: -3, scale: 1.01 }} className="bg-card border border-border rounded-xl shadow-sm dark:shadow-soft-dark p-6 flex flex-col justify-between transition-colors duration-250 border-b-4 border-b-success group">
           <div className="flex items-start justify-between mb-4">
             <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-success" />
+              <motion.div variants={iconAnimation} className="inline-flex">
+                <TrendingUp className="h-6 w-6 text-success" />
+              </motion.div>
             </div>
           </div>
           <div>
             <p className="text-3xl font-bold font-display text-foreground count-up">
-              ₹<CountUp end={totalRevenue} duration={3} separator="," decimals={0} />
+              ₹<CountUp end={totalRevenue} duration={3} separator="," decimals={0} enableScrollSpy scrollSpyOnce />
             </p>
             <span className="text-sm text-muted-foreground font-medium mt-1 block">Total Revenue</span>
           </div>
         </motion.div>
       </motion.div>
 
-      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-50px" }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={item}>
           <Card className="h-full hover:shadow-md transition-all duration-300">
             <CardHeader>

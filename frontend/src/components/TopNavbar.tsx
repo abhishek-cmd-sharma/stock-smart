@@ -107,14 +107,22 @@ export function TopNavbar() {
                 <Link
                   key={item.title}
                   to={item.url}
-                  className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 flex items-center gap-2 ${
+                  className={`relative px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 flex items-center gap-2 ${
                     isActive
-                      ? "bg-primary/10 text-primary"
+                      ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.title}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-0 bg-primary/10 rounded-full"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="w-4 h-4 relative z-10" />
+                  <span className="relative z-10">{item.title}</span>
                 </Link>
               );
             })}
@@ -176,21 +184,27 @@ export function TopNavbar() {
                 </div>
               </div>
 
-              {navItems.map((item) => (
-                <Link
+              {navItems.map((item, i) => (
+                <motion.div
                   key={item.title}
-                  to={item.url}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors ${
-                    location.pathname === item.url ||
-                    (item.url !== "/" && location.pathname.startsWith(item.url))
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-muted"
-                  }`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 + 0.1 }}
                 >
-                  <item.icon className="w-5 h-5" />
-                  {item.title}
-                </Link>
+                  <Link
+                    to={item.url}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors ${
+                      location.pathname === item.url ||
+                      (item.url !== "/" && location.pathname.startsWith(item.url))
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.title}
+                  </Link>
+                </motion.div>
               ))}
 
               <div className="mt-auto pt-4 border-t border-border">

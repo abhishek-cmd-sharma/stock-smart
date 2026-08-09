@@ -1286,10 +1286,17 @@ export function useUpdateProfileRole() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, role }: { id: string; role: string }) => {
-      await updateDoc(doc(db, "profiles", id), {
-        role,
-        updated_at: new Date().toISOString(),
+      const token = await getAuthToken();
+      if (!token) throw new Error("Not authenticated");
+      const res = await fetch(`${API_BASE_URL}/admin/profiles/${id}/role`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ role })
       });
+      if (!res.ok) throw new Error("Failed to update role");
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["all-profiles"] });
@@ -1302,7 +1309,13 @@ export function useDeleteProfile() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await deleteDoc(doc(db, "profiles", id));
+      const token = await getAuthToken();
+      if (!token) throw new Error("Not authenticated");
+      const res = await fetch(`${API_BASE_URL}/admin/profiles/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Failed to delete profile");
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["all-profiles"] });

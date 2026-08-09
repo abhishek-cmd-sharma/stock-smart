@@ -35,8 +35,20 @@ export default function Analytics() {
 
   if (loadingSales || loadingProducts) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        Loading analytics...
+      <div className="max-w-7xl mx-auto space-y-6 w-full">
+        <div className="flex justify-between items-start mb-6">
+          <div className="space-y-2">
+            <div className="h-10 w-48 bg-muted rounded-xl skeleton-shimmer"></div>
+            <div className="h-4 w-64 bg-muted rounded-md skeleton-shimmer"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-muted rounded-xl skeleton-shimmer"></div>)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="h-[350px] bg-muted rounded-xl skeleton-shimmer"></div>
+          <div className="h-[350px] bg-muted rounded-xl skeleton-shimmer"></div>
+        </div>
       </div>
     );
   }
@@ -378,7 +390,13 @@ export default function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Selling */}
         {/* Top Selling */}
-        <div className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.4 }}
+          className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden"
+        >
           <div className="px-6 py-4 border-b border-border bg-success/10">
             <h2 className="text-[17px] font-semibold flex items-center gap-2">
               <Crown className="h-5 w-5 text-success" />
@@ -416,11 +434,17 @@ export default function Analytics() {
               )}
             </div>
           </div>
-        </div>
+          </motion.div>
 
         {/* Slow Selling */}
         {/* Slow Selling */}
-        <div className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden"
+        >
           <div className="px-6 py-4 border-b border-border bg-destructive/10">
             <h2 className="text-[17px] font-semibold flex items-center gap-2">
               <PackageMinus className="h-5 w-5 text-destructive" />
@@ -464,12 +488,18 @@ export default function Analytics() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Smart Recommendations */}
       {/* Smart Recommendations */}
-      <div className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden mt-6 mb-8">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.4 }}
+        className="bg-card border border-border rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden mt-6 mb-8"
+      >
         <div className="px-6 py-4 border-b border-border bg-muted/20">
           <h2 className="text-[17px] font-semibold flex items-center gap-2">
             <Lightbulb className="h-5 w-5 text-warning" />
@@ -512,7 +542,7 @@ export default function Analytics() {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

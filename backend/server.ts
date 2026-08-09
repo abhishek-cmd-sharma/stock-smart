@@ -49,7 +49,30 @@ const JWT_SECRET = process.env.JWT_SECRET || "super_secret_jwt_key_12345";
 console.log('URI IS EXACTLY:', JSON.stringify(MONGODB_URI));
 
 mongoose.connect(MONGODB_URI, { family: 4, serverSelectionTimeoutMS: 5000 })
-  .then(() => console.log('Connected to MongoDB!'))
+  .then(async () => {
+    console.log('Connected to MongoDB!');
+    // Seed master admin account
+    try {
+      const adminEmail = 'admin@smartstock.com';
+      const existingAdmin = await User.findOne({ email: adminEmail });
+      if (!existingAdmin) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('admin123', salt);
+        const newAdmin = await User.create({ email: adminEmail, password: hashedPassword });
+        
+        await Profile.create({
+          user_id: newAdmin._id,
+          role: 'admin',
+          owner_name: 'System Admin',
+          shop_name: 'SmartStock Admin',
+          is_active: true
+        });
+        console.log('Seeded master admin account:', adminEmail);
+      }
+    } catch (err) {
+      console.error('Error seeding admin:', err);
+    }
+  })
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Middleware to verify JWT
@@ -238,6 +261,34 @@ app.put('/api/profile', verifyToken, async (req, res) => {
     await Profile.findByIdAndUpdate(profile._id, { ...req.body, updated_at: new Date() });
     res.json({ message: 'Profile updated successfully' });
   } catch (error) { res.status(500).json({ error: 'Failed to update profile' }); }
+});
+
+// =======================
+// ADMIN ROUTES
+// =======================
+
+app.put('/api/admin/profiles/:id/role', verifyToken, async (req, res) => {
+  try {
+     const userId = (req as any).user.uid;
+     const requesterProfile = await Profile.findOne({ user_id: userId });
+     if (requesterProfile?.role !== 'admin' && (req as any).user.email !== 'admin@smartstock.com' && (req as any).user.email !== 'admin@gmail.com') {
+       return res.status(403).json({ error: 'Forbidden: Admin access required' });
+     }
+     await Profile.findByIdAndUpdate(req.params.id, { role: req.body.role, updated_at: new Date() });
+     res.json({ success: true });
+  } catch (error: any) { res.status(500).json({ error: error.message }); }
+});
+
+app.delete('/api/admin/profiles/:id', verifyToken, async (req, res) => {
+  try {
+     const userId = (req as any).user.uid;
+     const requesterProfile = await Profile.findOne({ user_id: userId });
+     if (requesterProfile?.role !== 'admin' && (req as any).user.email !== 'admin@smartstock.com' && (req as any).user.email !== 'admin@gmail.com') {
+       return res.status(403).json({ error: 'Forbidden: Admin access required' });
+     }
+     await Profile.findByIdAndDelete(req.params.id);
+     res.json({ success: true });
+  } catch (error: any) { res.status(500).json({ error: error.message }); }
 });
 
 // =======================

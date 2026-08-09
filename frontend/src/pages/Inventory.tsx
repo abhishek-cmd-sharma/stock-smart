@@ -286,6 +286,7 @@ export default function Inventory() {
   const [form, setForm] = useState({ 
     name: "", category: "", price: "", quantity: "", expiry_date: "", batch_details: "", brand: "", barcode: "", image_url: ""
   });
+  const [formError, setFormError] = useState(false);
   const [productImageFile, setProductImageFile] = useState<File | null>(null);
   const uploadProductImage = useUploadProductImage();
 
@@ -648,6 +649,8 @@ export default function Inventory() {
 
   async function handleSave() {
     if (!form.name || !form.category || !form.price || !form.quantity || !form.expiry_date) {
+      setFormError(true);
+      setTimeout(() => setFormError(false), 500);
       toast.error("Please fill in all required fields");
       return;
     }
@@ -857,7 +860,17 @@ export default function Inventory() {
     toast.success('Discount removed');
   }
 
-  if (isLoading) return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading inventory...</div>;
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6 w-full">
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-10 w-64 bg-muted rounded-xl skeleton-shimmer"></div>
+          <div className="h-10 w-32 bg-muted rounded-xl skeleton-shimmer"></div>
+        </div>
+        <div className="h-[500px] w-full bg-muted rounded-xl skeleton-shimmer"></div>
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -890,7 +903,11 @@ export default function Inventory() {
                     {editId ? "Edit Product Details" : "Add New Product"}
                   </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 mt-2">
+                <motion.div 
+                  animate={formError ? { x: [-5, 5, -3, 3, 0] } : { x: 0 }} 
+                  transition={{ duration: 0.3 }} 
+                  className="space-y-4 mt-2"
+                >
                   <div className="flex flex-col items-center gap-3 mb-4">
                     <div className="relative h-24 w-24 rounded-xl border-2 border-dashed border-border overflow-hidden bg-muted/30 flex items-center justify-center">
                       {(productImageFile || form.image_url) ? (
@@ -1138,7 +1155,7 @@ export default function Inventory() {
                   >
                     {editId ? "Update Product" : "Add Product"}
                   </Button>
-                </div>
+                </motion.div>
               </DialogContent>
             </Dialog>
             {/* Barcode Scanner Dialog */}

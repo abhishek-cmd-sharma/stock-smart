@@ -410,7 +410,20 @@ export default function ComboOffers() {
 
   // ─── Loading ───
   if (loadingProducts || loadingSales || loadingCombos || loadingComboSales) {
-    return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading combo offers...</div>;
+    return (
+      <div className="max-w-7xl mx-auto space-y-6 w-full">
+        <div className="flex justify-between items-start mb-6">
+          <div className="space-y-2">
+            <div className="h-10 w-48 bg-muted rounded-xl skeleton-shimmer"></div>
+            <div className="h-4 w-64 bg-muted rounded-md skeleton-shimmer"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-24 bg-muted rounded-xl skeleton-shimmer"></div>)}
+        </div>
+        <div className="h-[400px] bg-muted rounded-xl skeleton-shimmer"></div>
+      </div>
+    );
   }
 
   return (
@@ -577,7 +590,13 @@ export default function ComboOffers() {
         {/* ═════ AI SUGGESTIONS TAB ═════ */}
         <TabsContent value="suggestions">
           {/* Product Classification Header */}
-          <Card className="mb-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+            className="mb-6 rounded-xl border bg-card text-card-foreground shadow"
+          >
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Crown className="h-5 w-5 text-amber-400" />
@@ -628,10 +647,16 @@ export default function ComboOffers() {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </motion.div>
 
           {/* Suggestions */}
-          <Card>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+            className="rounded-xl border bg-card text-card-foreground shadow"
+          >
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
@@ -704,12 +729,18 @@ export default function ComboOffers() {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </motion.div>
         </TabsContent>
 
         {/* ═════ MY COMBOS TAB ═════ */}
         <TabsContent value="combos">
-          <Card>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4 }}
+            className="rounded-xl border bg-card text-card-foreground shadow"
+          >
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Gift className="h-5 w-5 text-primary" />
@@ -830,8 +861,8 @@ export default function ComboOffers() {
                 </div>
               )}
             </CardContent>
-          </Card>
-        </TabsContent>
+            </motion.div>
+          </TabsContent>
 
         {/* ═════ REPORTS TAB ═════ */}
         <TabsContent value="reports">
