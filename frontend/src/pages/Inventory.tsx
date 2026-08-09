@@ -568,7 +568,9 @@ export default function Inventory() {
         if (!active) return;
         console.error('Scanner initialization error:', err);
         setScanning(false);
-        if (err.name === 'NotAllowedError') {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setScanError('Camera access requires a secure connection (HTTPS) or localhost. Please use the Vercel link to scan barcodes.');
+        } else if (err.name === 'NotAllowedError') {
           setScanError('Camera permission denied. Please allow camera access in your browser settings and try again.');
         } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
           setScanError('No camera found. Please connect a camera or use "Enter barcode manually" below.');
