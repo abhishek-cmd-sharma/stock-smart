@@ -130,10 +130,10 @@ app.post('/api/upload', verifyToken, upload.single('image'), (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
     
-    // Return the URL to access this image
-    // For local dev, this assumes running on port 3000
-    const port = process.env.PORT || 3000;
-    const url = `http://localhost:${port}/uploads/${req.file.filename}`;
+    // Return the URL to access this image using the actual request host
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers.host;
+    const url = `${protocol}://${host}/uploads/${req.file.filename}`;
     
     res.json({ url });
   } catch (error: any) {
