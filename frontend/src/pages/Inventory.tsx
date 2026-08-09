@@ -498,31 +498,8 @@ export default function Inventory() {
       }
 
       try {
-        // Request camera permission explicitly first
-        if (Capacitor.isNativePlatform()) {
-          const permissionStatus = await Camera.requestPermissions();
-          if (permissionStatus.camera !== 'granted' && permissionStatus.camera !== 'prompt-with-rationale') {
-            throw new Error('NotAllowedError'); // trigger standard error handler below
-          }
-        }
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }, // Let device choose optimal resolution for autofocus
-          audio: false
-        });
-        
-        if (!active) { stream.getTracks().forEach(t => t.stop()); return; }
-        
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.setAttribute('playsinline', 'true');
-          videoRef.current.setAttribute('autoplay', 'true');
-          videoRef.current.setAttribute('muted', 'true'); // Required for iOS autoplay
-        }
-
         setScanning(true);
 
-        // Import ZXing and create reader with only standard retail barcode formats to massively speed up scanning
         const { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } = await import('@zxing/library');
         
         const hints = new Map();
@@ -534,13 +511,21 @@ export default function Inventory() {
           BarcodeFormat.CODE_128,
           BarcodeFormat.CODE_39
         ]);
-        // Do NOT use TRY_HARDER as it drops the framerate on mobile devices to unusable levels
         
         const reader = new BrowserMultiFormatReader(hints);
         codeReaderRef.current = reader;
 
-        // decodeFromStream automatically sets srcObject and plays the video
-        reader.decodeFromStream(stream, videoRef.current, (result, err) => {
+        // Force ZXing to pick the rear/environment camera
+        const videoInputDevices = await reader.listVideoInputDevices();
+        const rearCamera = videoInputDevices.find(device => 
+          device.label.toLowerCase().includes('back') || 
+          device.label.toLowerCase().includes('environment') ||
+          device.label.toLowerCase().includes('rear')
+        );
+        const deviceId = rearCamera ? rearCamera.deviceId : undefined;
+
+        // Use decodeFromVideoDevice to let ZXing completely manage the camera stream and autofocus
+        reader.decodeFromVideoDevice(deviceId, videoRef.current, (result, err) => {
           if (!active) return;
           if (result) {
             const code = result.getText();
