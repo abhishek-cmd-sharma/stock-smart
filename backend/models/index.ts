@@ -34,7 +34,7 @@ const ProfileSchema = new Schema({
 // Virtual ID to match frontend's expectation of "id" field instead of "_id"
 ProfileSchema.set('toJSON', {
   virtuals: true,
-  transform: (doc, ret) => {
+  transform: (doc, ret: any) => {
     ret.id = ret._id.toString();
     delete ret._id;
     delete ret.__v;
@@ -63,7 +63,7 @@ const ProductSchema = new Schema({
 
 ProductSchema.set('toJSON', {
   virtuals: true,
-  transform: (doc, ret) => {
+  transform: (doc, ret: any) => {
     ret.id = ret._id.toString();
     delete ret._id;
     delete ret.__v;
@@ -89,7 +89,7 @@ export const getModel = (collectionName: string) => {
   const GenericSchema = new Schema({}, { strict: false });
   GenericSchema.set('toJSON', {
     virtuals: true,
-    transform: (doc, ret) => {
+    transform: (doc, ret: any) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;

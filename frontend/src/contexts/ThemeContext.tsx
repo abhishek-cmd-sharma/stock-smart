@@ -21,7 +21,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === "light" || stored === "dark") return stored;
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
     // prefer dark by default
     return "dark";
   });
@@ -30,14 +30,14 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const stored = localStorage.getItem(STORAGE_FONT) as FontChoice | null;
       if (stored === "dm" || stored === "space") return stored;
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
     return "dm";
   });
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");
@@ -49,7 +49,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_FONT, font);
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
     const root = document.documentElement;
     // set a data attribute to allow CSS to vary vars based on font
     root.setAttribute('data-font', font);

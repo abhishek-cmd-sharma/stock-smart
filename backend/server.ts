@@ -246,8 +246,8 @@ app.put('/api/profile', verifyToken, async (req, res) => {
 
 app.get('/api/db/:collection', verifyToken, async (req, res) => {
   try {
-    const colName = req.params.collection;
-    const Model = getModel(colName);
+    const colName = req.params.collection as string;
+    const Model = getModel(colName) as any;
     
     let query: any = {};
     if (req.query.filters) {
@@ -276,8 +276,8 @@ app.get('/api/db/:collection', verifyToken, async (req, res) => {
 
 app.post('/api/db/:collection', verifyToken, async (req, res) => {
   try {
-    const colName = req.params.collection;
-    const Model = getModel(colName);
+    const colName = req.params.collection as string;
+    const Model = getModel(colName) as any;
     const doc = await Model.create(req.body);
     res.status(201).json({ id: doc._id.toString() });
   } catch (error: any) { res.status(500).json({ error: error.message }); }
@@ -285,8 +285,8 @@ app.post('/api/db/:collection', verifyToken, async (req, res) => {
 
 app.put('/api/db/:collection/:id', verifyToken, async (req, res) => {
   try {
-    const colName = req.params.collection;
-    const Model = getModel(colName);
+    const colName = req.params.collection as string;
+    const Model = getModel(colName) as any;
     await Model.findByIdAndUpdate(req.params.id, req.body);
     res.json({ success: true });
   } catch (error: any) { res.status(500).json({ error: error.message }); }
@@ -294,8 +294,8 @@ app.put('/api/db/:collection/:id', verifyToken, async (req, res) => {
 
 app.delete('/api/db/:collection/:id', verifyToken, async (req, res) => {
   try {
-    const colName = req.params.collection;
-    const Model = getModel(colName);
+    const colName = req.params.collection as string;
+    const Model = getModel(colName) as any;
     await Model.findByIdAndDelete(req.params.id);
     res.json({ success: true });
   } catch (error: any) { res.status(500).json({ error: error.message }); }
@@ -306,7 +306,7 @@ app.post('/api/db/batch', verifyToken, async (req, res) => {
     const operations = req.body.operations || [];
     // We run sequentially since real MongoDB bulk operations are per-collection
     for (const op of operations) {
-      const Model = getModel(op.collection);
+      const Model = getModel(op.collection) as any;
       if (op.type === 'set') {
         await Model.findByIdAndUpdate(op.id, op.data, { upsert: true });
       } else if (op.type === 'update') {
