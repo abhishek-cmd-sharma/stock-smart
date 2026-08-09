@@ -341,6 +341,12 @@ export default function ComboOffers() {
       toast.error("Please fill all required fields");
       return;
     }
+
+    if (new Date(comboForm.end_date) < new Date(comboForm.start_date)) {
+      toast.error("End date cannot be earlier than start date");
+      return;
+    }
+
     const orig = getProductPrice(comboForm.product1) + getProductPrice(comboForm.product2) + (comboForm.product3 ? getProductPrice(comboForm.product3) : 0);
 
     try {
@@ -507,7 +513,7 @@ export default function ComboOffers() {
                 </div>
                 <div className="space-y-2">
                   <Label>End Date *</Label>
-                  <Input type="date" value={comboForm.end_date} onChange={(e) => setComboForm((f) => ({ ...f, end_date: e.target.value }))} />
+                  <Input type="date" min={comboForm.start_date} value={comboForm.end_date} onChange={(e) => setComboForm((f) => ({ ...f, end_date: e.target.value }))} />
                 </div>
               </div>
               {comboForm.suggestion_reason && (
