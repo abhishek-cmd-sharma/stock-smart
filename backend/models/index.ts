@@ -25,6 +25,7 @@ const ProfileSchema = new Schema({
   date_of_birth: { type: String, default: '' },
   gender: { type: String, default: '' },
   is_active: { type: Boolean, default: true },
+  is_open: { type: Boolean, default: true },
   latitude: { type: Number },
   longitude: { type: Number },
   created_at: { type: Date, default: Date.now },

@@ -46,6 +46,7 @@ export interface Profile {
   updated_at: string;
   latitude?: number;
   longitude?: number;
+  is_open?: boolean;
 }
 
 export type ProfileInsert = Omit<Profile, "id" | "created_at" | "updated_at"> & {
@@ -89,6 +90,7 @@ export interface EnhancedProfileData {
   role?: string | null;
   latitude?: number;
   longitude?: number;
+  is_open?: boolean;
 }
 
 // Shop-to-Shop Stock Transfer Types

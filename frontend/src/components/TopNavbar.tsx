@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useData";
+import { useProfile, useUpsertProfile } from "@/hooks/useData";
 import {
   LayoutDashboard,
   Package,
@@ -22,6 +22,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import NotificationsPanel from "@/components/ui/notifications";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const shopkeeperItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -49,8 +51,18 @@ export function TopNavbar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { data: profile } = useProfile();
+  const upsertProfile = useUpsertProfile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const toggleShopStatus = async () => {
+    if (profile) {
+      await upsertProfile.mutateAsync({
+        ...profile,
+        is_open: !profile.is_open,
+      });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -130,6 +142,20 @@ export function TopNavbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2 md:gap-4">
+            {userRole === "shopkeeper" && profile && (
+              <div className="hidden sm:flex items-center gap-2 mr-2">
+                <Switch 
+                  id="shop-status" 
+                  checked={profile.is_open ?? true} 
+                  onCheckedChange={toggleShopStatus}
+                  disabled={upsertProfile.isPending}
+                />
+                <Label htmlFor="shop-status" className="text-sm font-medium whitespace-nowrap cursor-pointer">
+                  {profile.is_open ?? true ? "Shop Open" : "Shop Closed"}
+                </Label>
+              </div>
+            )}
+
             {userRole !== "customer" && (
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <NotificationsPanel />
@@ -183,6 +209,20 @@ export function TopNavbar() {
                   <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
                 </div>
               </div>
+
+              {userRole === "shopkeeper" && profile && (
+                <div className="px-4 pb-4 mb-2 flex items-center justify-between">
+                  <Label htmlFor="mobile-shop-status" className="text-sm font-medium cursor-pointer">
+                    {profile.is_open ?? true ? "Shop is Open" : "Shop is Closed"}
+                  </Label>
+                  <Switch 
+                    id="mobile-shop-status" 
+                    checked={profile.is_open ?? true} 
+                    onCheckedChange={toggleShopStatus}
+                    disabled={upsertProfile.isPending}
+                  />
+                </div>
+              )}
 
               {navItems.map((item, i) => (
                 <motion.div

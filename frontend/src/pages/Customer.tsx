@@ -459,9 +459,16 @@ export default function Customer() {
                             <Store className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <CardTitle className="text-base font-bold">
-                              {shop.shop_name || "Unnamed Shop"}
-                            </CardTitle>
+                            <div className="flex items-center gap-2">
+                              <CardTitle className="text-base font-bold">
+                                {shop.shop_name || "Unnamed Shop"}
+                              </CardTitle>
+                              {shop.is_open ?? true ? (
+                                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] h-5 py-0 px-1.5 shadow-none hover:bg-emerald-500/20">Open</Badge>
+                              ) : (
+                                <Badge variant="secondary" className="bg-muted text-muted-foreground text-[10px] h-5 py-0 px-1.5 shadow-none">Closed</Badge>
+                              )}
+                            </div>
                             <p className="text-xs text-muted-foreground mt-0.5">
                               by {shop.owner_name || "Unknown"}
                             </p>

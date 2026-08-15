@@ -95,7 +95,14 @@ export default function ShopProducts() {
                                 <Store className="h-8 w-8 text-primary" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h2 className="font-semibold text-lg">{shop.shop_name || "Unnamed Shop"}</h2>
+                                <div className="flex items-center gap-2">
+                                    <h2 className="font-semibold text-lg">{shop.shop_name || "Unnamed Shop"}</h2>
+                                    {shop.is_open ?? true ? (
+                                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-none hover:bg-emerald-500/20">Open Now</Badge>
+                                    ) : (
+                                        <Badge variant="secondary" className="bg-muted text-muted-foreground shadow-none">Closed</Badge>
+                                    )}
+                                </div>
                                 <p className="text-sm text-muted-foreground">
                                     by {shop.owner_name || "Unknown"}
                                 </p>
