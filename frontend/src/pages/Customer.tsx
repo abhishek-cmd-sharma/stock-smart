@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import LeafletMap from "@/components/ShopMap";
 import GoogleMaps from "@/components/GoogleShopMap";
 import { getGoogleMapsApiKey } from "@/pages/MapSettings";
+import SmartChatAssistant from "@/components/SmartChatAssistant";
 
 export default function Customer() {
   const {
@@ -668,6 +669,9 @@ export default function Customer() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Smart Chat Assistant Simulation */}
+      <SmartChatAssistant listings={source} />
     </motion.div>
   );
 }
